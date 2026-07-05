@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pkill -f \"electron\")",
+      "Bash(\"C:/AI/桌面宠物/node_modules/electron/dist/electron.exe\" .)",
+      "Bash(python scripts/generate-pixel-art.js)",
+      "Bash(node scripts/generate-pixel-art.js)",
+      "Bash(\"C:/AI/桌面宠物/node_modules/.bin/node\" scripts/generate-pixel-art.js)",
+      "Bash(where node *)",
+      "Bash(grep桌面)",
+      "Bash(python *)"
+    ]
+  }
+}

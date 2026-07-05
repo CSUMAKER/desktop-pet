@@ -1,0 +1,112 @@
+/* ===== Idle breathing animation ===== */
+@keyframes breathe {
+  0%, 100% {
+    transform: scaleY(1) scaleX(1);
+  }
+  50% {
+    transform: scaleY(1.03) scaleX(0.98);
+  }
+}
+
+/* ===== Walking bob animation ===== */
+@keyframes walkBob {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-4px) rotate(-2deg);
+  }
+  75% {
+    transform: translateY(-4px) rotate(2deg);
+  }
+}
+
+/* ===== Sleeping bob animation ===== */
+@keyframes sleepBob {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+    filter: brightness(0.85);
+  }
+  50% {
+    transform: translateY(-3px) rotate(1deg);
+    filter: brightness(0.8);
+  }
+}
+
+/* ===== Greeting bounce animation ===== */
+@keyframes greetBounce {
+  0% {
+    transform: scale(1) translateY(0);
+  }
+  20% {
+    transform: scale(1.08) translateY(-8px);
+  }
+  40% {
+    transform: scale(0.95) translateY(2px);
+  }
+  60% {
+    transform: scale(1.05) translateY(-4px);
+  }
+  80% {
+    transform: scale(0.98) translateY(1px);
+  }
+  100% {
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* ===== Dialog bubble pop-in ===== */
+@keyframes bubblePop {
+  0% {
+    transform: translateY(0) scale(0.5);
+    opacity: 0;
+  }
+  50% {
+    transform: translateY(-15px) scale(1.1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-10px) scale(1);
+    opacity: 1;
+  }
+}
+
+/* ===== Cursor trail sparkle ===== */
+@keyframes sparkleFade {
+  0% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0) translateY(-30px);
+  }
+}
+
+/* ===== State classes ===== */
+
+/* Idle state */
+body.state-idle #pet-sprite {
+  animation: breathe 2.5s ease-in-out infinite;
+}
+
+/* Walking state */
+body.state-walking #pet-sprite {
+  animation: walkBob 0.35s ease-in-out infinite;
+}
+
+/* Sleeping state */
+body.state-sleeping #pet-sprite {
+  animation: sleepBob 3s ease-in-out infinite;
+  filter: brightness(0.8);
+}
+
+/* Greeting state */
+body.state-greeting #pet-sprite {
+  animation: greetBounce 0.6s ease-in-out;
+}
+
+/* Dialog bubble animation */
+#dialog-bubble.pop {
+  animation: bubblePop 0.4s ease-out forwards;
+}

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline'; img-src 'self' data:; canvas-src 'self';">
+  <title>桌面宠物</title>
+  <link rel="stylesheet" href="./css/pet.css">
+  <link rel="stylesheet" href="./css/animations.css">
+</head>
+<body>
+  <!-- Layer 1: Particle canvas (behind character) -->
+  <canvas id="particle-canvas"></canvas>
+
+  <!-- Layer 2: Character sprite -->
+  <div id="pet-container">
+    <img id="pet-sprite" src="./assets/pet-sprite.png" alt="pet">
+  </div>
+
+  <!-- Layer 3: Dialog bubble -->
+  <div id="dialog-bubble" class="hidden">
+    <div class="bubble-text"></div>
+    <div class="bubble-arrow"></div>
+  </div>
+
+  <!-- Layer 4: Hit zone (invisible, captures all mouse events) -->
+  <div id="hit-zone"></div>
+
+  <script src="./js/StateMachine.js"></script>
+  <script src="./js/ParticleSystem.js"></script>
+  <script src="./js/DialogBubble.js"></script>
+  <script src="./js/App.js"></script>
+</body>
+</html>
