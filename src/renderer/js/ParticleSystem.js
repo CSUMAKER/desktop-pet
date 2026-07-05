@@ -52,24 +52,24 @@ class ParticleSystem {
 
     const configs = {
       sparkle: {
-        vx: Math.cos(angle) * speed * 0.5,
-        vy: -speed * (0.5 + Math.random()),
-        decay: 0.01 + Math.random() * 0.02,
-        size: 3 + Math.random() * 5,
+        vx: Math.cos(angle) * speed * 0.3,
+        vy: -speed * (0.3 + Math.random() * 0.5),
+        decay: 0.015 + Math.random() * 0.02,
+        size: 2 + Math.random() * 3,
         color: Math.random() > 0.5 ? '#FFD700' : '#FFFFFF',
       },
       heart: {
-        vx: Math.cos(angle) * speed * 1.5,
-        vy: Math.sin(angle) * speed * 1.5 - 1,
-        decay: 0.012 + Math.random() * 0.015,
-        size: 6 + Math.random() * 8,
+        vx: Math.cos(angle) * speed * 0.8,
+        vy: Math.sin(angle) * speed * 0.8 - 0.5,
+        decay: 0.015 + Math.random() * 0.015,
+        size: 3 + Math.random() * 4,
         color: Math.random() > 0.3 ? '#FF69B4' : '#FF1493',
       },
       zzz: {
-        vx: (Math.random() - 0.5) * 0.5,
-        vy: -0.3 - Math.random() * 0.5,
-        decay: 0.006 + Math.random() * 0.008,
-        size: 10 + Math.random() * 6,
+        vx: (Math.random() - 0.5) * 0.3,
+        vy: -0.2 - Math.random() * 0.3,
+        decay: 0.008 + Math.random() * 0.008,
+        size: 6 + Math.random() * 4,
         color: '#8888CC',
       },
     };
@@ -77,8 +77,8 @@ class ParticleSystem {
     const config = configs[type] || configs.sparkle;
 
     return {
-      x: ox + (Math.random() - 0.5) * 10,
-      y: oy + (Math.random() - 0.5) * 10,
+      x: ox + (Math.random() - 0.5) * 6,
+      y: oy + (Math.random() - 0.5) * 6,
       vx: config.vx,
       vy: config.vy,
       type,

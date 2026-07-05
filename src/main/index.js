@@ -1,3 +1,5 @@
+const { ipcMain } = require('electron');
+
 const { app, BrowserWindow, screen, Menu, nativeTheme } = require('electron');
 const path = require('path');
 const EdgeDetector = require('./EdgeDetector');
@@ -85,6 +87,14 @@ function createPetWindow() {
 
   return win;
 }
+
+// Handle renderer -> main: move the pet window by delta
+ipcMain.on('move-window', (event, { dx, dy }) => {
+  if (petWindow && !petWindow.isDestroyed()) {
+    const bounds = petWindow.getBounds();
+    petWindow.setPosition(Math.round(bounds.x + dx), Math.round(bounds.y + dy), true);
+  }
+});
 
 // Handle right-click context menu on the window
 app.whenReady().then(() => {

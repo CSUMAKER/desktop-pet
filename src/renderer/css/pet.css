@@ -40,9 +40,9 @@ html, body {
   image-rendering: -moz-crisp-edges;
   image-rendering: crisp-edges;
   -ms-interpolation-mode: nearest-neighbor;
-  /* Small window: no extra scaling needed */
-  transform: scale(1);
-  transform-origin: center bottom;
+  /* Fill the 50x50 window */
+  width: 50px;
+  height: 50px;
   /* Default idle animation */
   animation: breathe 2.5s ease-in-out infinite;
 }

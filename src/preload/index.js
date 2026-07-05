@@ -9,4 +9,9 @@ contextBridge.exposeInMainWorld('petAPI', {
   onEdgeSnapped: (fn) => {
     ipcRenderer.on('edge-snapped', (_, data) => fn(data));
   },
+
+  // Renderer -> Main: move the window by delta (dx, dy)
+  moveWindow: (dx, dy) => {
+    ipcRenderer.send('move-window', { dx, dy });
+  },
 });
