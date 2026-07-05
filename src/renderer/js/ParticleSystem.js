@@ -17,8 +17,8 @@ class ParticleSystem {
   /** Resize canvas to match window */
   resize() {
     const rect = this.canvas.parentElement.getBoundingClientRect();
-    this.canvas.width = Math.max(rect.width || 50, 50);
-    this.canvas.height = Math.max(rect.height || 50, 50);
+    this.canvas.width = Math.max(rect.width || 60, 60);
+    this.canvas.height = Math.max(rect.height || 60, 60);
   }
 
   /** Start continuous particle emission for a given type */

@@ -7,3 +7,5 @@ Thumbs.db
 resources/processed/
 debug_preview.png
 .OIP-C.*
+scripts/_*.py
+scripts/resize-sprite.js
