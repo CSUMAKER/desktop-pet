@@ -20,6 +20,8 @@ app.on('child-process-gone', (event, details) => {
   console.error('Child process crashed:', details.reason, details.exitCode);
 });
 
+const WINDOW_SIZE = 50; // pet window size in pixels (square)
+
 let petWindow = null;
 let edgeDetector = null;
 let mouseTracker = null;
@@ -39,23 +41,17 @@ const contextMenuTemplate = [
 const contextMenu = Menu.buildFromTemplate(contextMenuTemplate);
 
 function createPetWindow() {
-  // Get the bounds of all displays combined
-  const displays = screen.getAllDisplays();
-  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-  for (const display of displays) {
-    minX = Math.min(minX, display.workArea.x);
-    minY = Math.min(minY, display.workArea.y);
-    maxX = Math.max(maxX, display.workArea.x + display.workArea.width);
-    maxY = Math.max(maxY, display.workArea.y + display.workArea.height);
-  }
+  // Center on the primary display
+  const primaryDisplay = screen.getPrimaryDisplay();
+  const { width, height } = primaryDisplay.workArea;
 
   const win = new BrowserWindow({
-    x: minX,
-    y: minY,
-    width: maxX - minX,
-    height: maxY - minY,
+    x: Math.round((width - WINDOW_SIZE) / 2),
+    y: Math.round((height - WINDOW_SIZE) / 2),
+    width: WINDOW_SIZE,
+    height: WINDOW_SIZE,
     frame: false,
-    transparent: false,
+    transparent: true,
     backgroundColor: '#00000000',
     alwaysOnTop: true,
     skipTaskbar: true,
@@ -71,8 +67,6 @@ function createPetWindow() {
       backgroundThrottling: false,
     },
   });
-
-  win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
 
   win.loadFile(path.join(__dirname, '../renderer/index.html')).catch((err) => {
     console.error('Failed to load HTML:', err);

@@ -15,18 +15,18 @@ html, body {
   -webkit-user-select: none;
 }
 
-/* Particle canvas - behind everything */
+/* Particle canvas - sized to the small pet window */
 #particle-canvas {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
   pointer-events: none;
   z-index: 1;
 }
 
-/* Pet container - character display */
+/* Pet container - character display, centered in the small window */
 #pet-container {
   position: absolute;
   z-index: 2;
@@ -40,8 +40,8 @@ html, body {
   image-rendering: -moz-crisp-edges;
   image-rendering: crisp-edges;
   -ms-interpolation-mode: nearest-neighbor;
-  /* Scale up for visibility on desktop */
-  transform: scale(1.5);
+  /* Small window: no extra scaling needed */
+  transform: scale(1);
   transform-origin: center bottom;
   /* Default idle animation */
   animation: breathe 2.5s ease-in-out infinite;
@@ -52,12 +52,12 @@ html, body {
   position: absolute;
   z-index: 3;
   background: white;
-  border-radius: 20px;
-  padding: 10px 18px;
-  min-width: 80px;
-  max-width: 200px;
+  border-radius: 12px;
+  padding: 6px 10px;
+  min-width: 40px;
+  max-width: 120px;
   text-align: center;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.15);
   opacity: 0;
   transform: translateY(10px) scale(0.8);
   transition: opacity 0.3s ease, transform 0.3s ease;
@@ -75,22 +75,22 @@ html, body {
 }
 
 .bubble-text {
-  font-size: 14px;
+  font-size: 10px;
   color: #333;
-  line-height: 1.4;
+  line-height: 1.3;
   font-weight: bold;
 }
 
 .bubble-arrow {
   position: absolute;
-  bottom: -8px;
+  bottom: -6px;
   left: 50%;
   transform: translateX(-50%);
   width: 0;
   height: 0;
-  border-left: 8px solid transparent;
-  border-right: 8px solid transparent;
-  border-top: 8px solid white;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 6px solid white;
 }
 
 /* Hit zone - only covers pet vicinity, not the full screen */

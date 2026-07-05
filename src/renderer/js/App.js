@@ -5,6 +5,11 @@
 (function () {
   'use strict';
 
+  // --- Constants ---
+  const WINDOW_SIZE = 50; // matches main process
+  const PET_SIZE = 36;    // effective pet display size
+  const HIT_PAD = 10;     // extra padding around pet for hit zone
+
   // DOM elements
   const petContainer = document.getElementById('pet-container');
   const petSprite = document.getElementById('pet-sprite');
@@ -22,8 +27,8 @@
   window.dialogBubble = dialogBubble;
 
   // Current pet position (relative to window)
-  let petX = 160;
-  let petY = 180;
+  let petX = (WINDOW_SIZE - PET_SIZE) / 2;
+  let petY = (WINDOW_SIZE - PET_SIZE) / 2;
   let targetX = petX;
   let targetY = petY;
 
@@ -48,33 +53,34 @@
     const bubble = document.getElementById('dialog-bubble');
     const bubbleRect = bubble.getBoundingClientRect();
 
-    // Position bubble centered above the pet
-    const bubbleX = containerRect.left + containerRect.width / 2 - bubbleRect.width / 2;
-    const bubbleY = containerRect.top - bubbleRect.height - 12;
+    // Position bubble centered above the pet, clipped to window
+    const bubbleX = Math.max(0, Math.min(
+      containerRect.left + containerRect.width / 2 - bubbleRect.width / 2,
+      WINDOW_SIZE - bubbleRect.width
+    ));
+    const bubbleY = Math.max(0, containerRect.top - bubbleRect.height - 6);
 
     bubble.style.left = bubbleX + 'px';
     bubble.style.top = bubbleY + 'px';
   }
 
   /**
-   * Update hit zone position to follow the pet
+   * Update hit zone position to cover the pet vicinity
    */
   function updateHitZone() {
-    const rect = petContainer.getBoundingClientRect();
-    const pad = 120;
-    hitZone.style.left = (rect.left - pad) + 'px';
-    hitZone.style.top = (rect.top - pad) + 'px';
-    hitZone.style.width = (rect.width + pad * 2) + 'px';
-    hitZone.style.height = (rect.height + pad * 2) + 'px';
+    const pad = HIT_PAD;
+    hitZone.style.left = (-pad) + 'px';
+    hitZone.style.top = (-pad) + 'px';
+    hitZone.style.width = (WINDOW_SIZE + pad * 2) + 'px';
+    hitZone.style.height = (WINDOW_SIZE + pad * 2) + 'px';
   }
 
   /**
-   * Initialize the pet position
+   * Initialize the pet position (centered in window)
    */
   function initPosition() {
-    const rect = document.documentElement.getBoundingClientRect();
-    petX = (rect.width - 200) / 2;
-    petY = (rect.height - 350) / 2;
+    petX = (WINDOW_SIZE - PET_SIZE) / 2;
+    petY = (WINDOW_SIZE - PET_SIZE) / 2;
     targetX = petX;
     targetY = petY;
     positionPet(petX, petY);
@@ -93,13 +99,13 @@
     switch (newState) {
       case 'IDLE':
         body.classList.add('state-idle');
-        particleSystem.startContinuous('sparkle', 0.12);
+        particleSystem.startContinuous('sparkle', 0.08);
         dialogBubble.hide();
         break;
 
       case 'WALKING':
         body.classList.add('state-walking');
-        particleSystem.startContinuous('sparkle', 0.2);
+        particleSystem.startContinuous('sparkle', 0.12);
         dialogBubble.hide();
         break;
 
@@ -108,14 +114,14 @@
         particleSystem.stopContinuous();
         // Heart burst from pet center
         const rect = petContainer.getBoundingClientRect();
-        const cx = rect.width / 2;
-        const cy = rect.height / 2;
-        particleSystem.emit('heart', 15, cx, cy);
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+        particleSystem.emit('heart', 8, cx, cy);
         break;
 
       case 'SLEEPING':
         body.classList.add('state-sleeping');
-        particleSystem.startContinuous('zzz', 0.08);
+        particleSystem.startContinuous('zzz', 0.05);
         dialogBubble.hide();
         break;
     }
@@ -136,7 +142,7 @@
       // Wake up!
       sm.wakeUp();
       dialogBubble.show('唔...几点了？');
-      particleSystem.emit('sparkle', 8, petCX, petCY);
+      particleSystem.emit('sparkle', 5, petCX, petCY);
       positionDialogBubble();
     } else if (sm.state === 'IDLE' || sm.state === 'WALKING') {
       // Greet!
@@ -152,13 +158,13 @@
         '嘿嘿，好开心！',
       ];
       dialogBubble.show(phrases[Math.floor(Math.random() * phrases.length)]);
-      particleSystem.emit('heart', 12, petCX, petCY);
+      particleSystem.emit('heart', 6, petCX, petCY);
       positionDialogBubble();
     }
   });
 
   /**
-   * Handle mouse move for walking direction
+   * Handle mouse move for subtle tilt toward cursor
    */
   hitZone.addEventListener('mousemove', (e) => {
     if (isDragging) return;
@@ -167,14 +173,14 @@
     const petCX = rect.left + rect.width / 2;
     const petCY = rect.top + rect.height / 2;
 
-    // Subtle tilt toward cursor
     const dx = e.clientX - petCX;
     const dy = e.clientY - petCY;
     const dist = Math.hypot(dx, dy);
 
-    if (dist < 200 && stateMachine.state !== 'GREETING') {
-      const tiltX = (dx / 200) * 5;
-      const tiltY = (dy / 200) * 3;
+    // Tilt when cursor is near the small window
+    if (dist < 60 && stateMachine.state !== 'GREETING') {
+      const tiltX = (dx / 60) * 8;
+      const tiltY = (dy / 60) * 5;
       petSprite.style.transform = `rotateY(${tiltX}deg) rotateX(${-tiltY}deg)`;
     }
   });
@@ -211,11 +217,8 @@
 
   document.addEventListener('mousemove', (e) => {
     if (isDragging) {
-      const canvasRect = particleCanvas.getBoundingClientRect();
-      petX = Math.max(0, Math.min(e.clientX - canvasRect.left - dragOffsetX,
-        canvasRect.width - 100));
-      petY = Math.max(0, Math.min(e.clientY - canvasRect.top - dragOffsetY,
-        canvasRect.height - 120));
+      petX = Math.max(0, Math.min(e.clientX - dragOffsetX, WINDOW_SIZE - PET_SIZE));
+      petY = Math.max(0, Math.min(e.clientY - dragOffsetY, WINDOW_SIZE - PET_SIZE));
       positionPet(petX, petY);
       updateHitZone();
       positionDialogBubble();
@@ -224,40 +227,37 @@
 
   /**
    * Handle cursor position updates from main process
+   * In a small window, the pet walks toward the cursor directly
    */
   if (window.petAPI) {
     window.petAPI.onCursorUpdate((data) => {
       if (isDragging) return;
 
-      // Smooth follow: move pet slightly toward cursor
+      // Smooth follow: move pet toward cursor position
       if (stateMachine.state === 'WALKING') {
-        const canvasRect = particleCanvas.getBoundingClientRect();
-        const targetPx = data.x - canvasRect.left - 50;
-        const targetPy = data.y - canvasRect.top - 60;
-
-        // Clamp to window bounds
-        targetX = Math.max(0, Math.min(targetPx, canvasRect.width - 100));
-        targetY = Math.max(0, Math.min(targetPy, canvasRect.height - 120));
+        // Cursor is already in screen coords; pet moves within the small window
+        targetX = Math.max(0, Math.min(data.x - dragOffsetX, WINDOW_SIZE - PET_SIZE));
+        targetY = Math.max(0, Math.min(data.y - dragOffsetY, WINDOW_SIZE - PET_SIZE));
 
         // Smooth interpolation
         petX += (targetX - petX) * 0.08;
         petY += (targetY - petY) * 0.08;
 
         positionPet(petX, petY);
+        updateHitZone();
       }
     });
 
     window.petAPI.onEdgeSnapped((data) => {
-      console.log('Pet snapped to edge:', data.position);
+      // Edge snap is less relevant with a tiny window
     });
   }
 
   /**
-   * Handle window resize
+   * Handle window resize (unlikely with fixed size, but safe)
    */
   window.addEventListener('resize', () => {
     particleSystem.resize();
-    initPosition();
     updateHitZone();
   });
 

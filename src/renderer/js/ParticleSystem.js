@@ -17,8 +17,8 @@ class ParticleSystem {
   /** Resize canvas to match window */
   resize() {
     const rect = this.canvas.parentElement.getBoundingClientRect();
-    this.canvas.width = rect.width || 520;
-    this.canvas.height = rect.height || 550;
+    this.canvas.width = Math.max(rect.width || 50, 50);
+    this.canvas.height = Math.max(rect.height || 50, 50);
   }
 
   /** Start continuous particle emission for a given type */
@@ -77,8 +77,8 @@ class ParticleSystem {
     const config = configs[type] || configs.sparkle;
 
     return {
-      x: ox + (Math.random() - 0.5) * 20,
-      y: oy + (Math.random() - 0.5) * 20,
+      x: ox + (Math.random() - 0.5) * 10,
+      y: oy + (Math.random() - 0.5) * 10,
       vx: config.vx,
       vy: config.vy,
       type,
