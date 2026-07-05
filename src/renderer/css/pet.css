@@ -31,8 +31,8 @@ html, body {
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  width: 30px;
+  height: 30px;
   z-index: 2;
   transition: none;
 }
@@ -86,14 +86,16 @@ html, body {
   white-space: nowrap;
 }
 
-/* Hit zone covers entire window + small padding */
+/* Hit zone covers entire window */
 #hit-zone {
   position: fixed;
-  top: -5px;
-  left: -5px;
+  top: 0;
+  left: 0;
   z-index: 4;
   cursor: grab;
   pointer-events: auto;
+  width: 100%;
+  height: 100%;
 }
 
 #hit-zone.grabbing {

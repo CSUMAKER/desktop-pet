@@ -76,6 +76,21 @@ function createPetWindow() {
   mouseTracker = new MouseTracker(win);
   mouseTracker.start();
 
+  // Send window bounds periodically so renderer can convert cursor to local coords
+  const boundsInterval = setInterval(() => {
+    if (!petWindow || petWindow.isDestroyed()) {
+      clearInterval(boundsInterval);
+      return;
+    }
+    const bounds = petWindow.getBounds();
+    petWindow.webContents.send('window-bounds', {
+      x: bounds.x,
+      y: bounds.y,
+      width: bounds.width,
+      height: bounds.height,
+    });
+  }, 100);
+
   win.on('closed', () => {
     edgeDetector.destroy();
     mouseTracker.destroy();
@@ -85,7 +100,7 @@ function createPetWindow() {
   return win;
 }
 
-// Renderer -> Main: move window by delta
+// Handle renderer -> main: move window by delta
 ipcMain.on('move-window', (event, { dx, dy }) => {
   if (petWindow && !petWindow.isDestroyed()) {
     const bounds = petWindow.getBounds();

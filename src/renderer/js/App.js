@@ -7,6 +7,7 @@
 
   // --- Constants ---
   const WINDOW_SIZE = 60; // matches main process
+  const DRAG_THRESHOLD = 6; // pixels of movement before treated as drag, not click
 
   // DOM elements
   const petContainer = document.getElementById('pet-container');
@@ -24,10 +25,12 @@
   window.particleSystem = particleSystem;
   window.dialogBubble = dialogBubble;
 
-  // Drag state
+  // --- Drag state ---
   let isDragging = false;
+  let dragStarted = false;
   let dragStartScreenX = 0;
   let dragStartScreenY = 0;
+  let dragMovedPixels = 0;
 
   /**
    * Handle state change visual updates
@@ -67,9 +70,11 @@
   stateMachine.onStateChange(onStateChange);
 
   /**
-   * Handle click on hit zone
+   * Handle click on hit zone (only if drag threshold not exceeded)
    */
-  hitZone.addEventListener('click', (e) => {
+  function handleClick() {
+    if (dragMovedPixels > DRAG_THRESHOLD) return; // was a drag, not a click
+
     const sm = stateMachine;
     const cx = WINDOW_SIZE / 2;
     const cy = WINDOW_SIZE / 2;
@@ -95,7 +100,7 @@
       particleSystem.emit('heart', 4, cx, cy);
       positionDialogBubble();
     }
-  });
+  }
 
   /**
    * Position dialog bubble inside the window, above the pet
@@ -115,12 +120,17 @@
   }
 
   /**
-   * Handle plain drag to move the window (no shift key needed)
+   * Handle left-click drag to move the window.
+   * Distinguishes click from drag by movement threshold.
    */
   hitZone.addEventListener('mousedown', (e) => {
+    if (e.button !== 0) return; // only left button
+
     isDragging = true;
+    dragStarted = false;
     dragStartScreenX = e.screenX;
     dragStartScreenY = e.screenY;
+    dragMovedPixels = 0;
     hitZone.classList.add('grabbing');
 
     if (window.edgeDetector) {
@@ -130,6 +140,8 @@
 
   document.addEventListener('mouseup', () => {
     if (isDragging) {
+      handleClick();
+
       isDragging = false;
       hitZone.classList.remove('grabbing');
 
@@ -140,18 +152,68 @@
   });
 
   document.addEventListener('mousemove', (e) => {
-    if (isDragging) {
-      const dx = e.screenX - dragStartScreenX;
-      const dy = e.screenY - dragStartScreenY;
+    if (!isDragging) return;
+
+    // Don't start dragging until threshold is exceeded
+    const dx = e.screenX - dragStartScreenX;
+    const dy = e.screenY - dragStartScreenY;
+    const dist = Math.hypot(dx, dy);
+
+    if (dist > DRAG_THRESHOLD && !dragStarted) {
+      dragStarted = true;
+    }
+
+    if (dragStarted) {
+      const moveDx = e.screenX - dragStartScreenX;
+      const moveDy = e.screenY - dragStartScreenY;
 
       if (window.petAPI) {
-        window.petAPI.moveWindow(dx, dy);
+        window.petAPI.moveWindow(moveDx, moveDy);
       }
 
       dragStartScreenX = e.screenX;
       dragStartScreenY = e.screenY;
+      dragMovedPixels += dist;
     }
   });
+
+  /**
+   * Handle cursor position updates from main process.
+   * Pet smoothly walks toward the cursor when in WALKING state.
+   */
+  if (window.petAPI) {
+    // Initialize window bounds from last known value
+    if (window.petWindowBounds) {
+      // Bounds already set
+    }
+
+    window.petAPI.onWindowBounds(() => {
+      // Bounds updated by main process interval
+    });
+
+    window.petAPI.onCursorUpdate((data) => {
+      if (isDragging) return;
+
+      if (stateMachine.state === 'WALKING') {
+        // Convert screen cursor to window-local coordinates
+        const win = window.petWindowBounds || { x: 0, y: 0, w: WINDOW_SIZE, h: WINDOW_SIZE };
+        const cursorLocalX = data.x - win.x;
+        const cursorLocalY = data.y - win.y;
+
+        // Move pet toward cursor, clamped to window
+        const targetX = Math.max(0, Math.min(cursorLocalX - 15, WINDOW_SIZE - 30));
+        const targetY = Math.max(0, Math.min(cursorLocalY - 15, WINDOW_SIZE - 30));
+
+        // Smooth interpolation
+        const petEl = document.getElementById('pet-container');
+        const curX = parseFloat(petEl.style.left) || 0;
+        const curY = parseFloat(petEl.style.top) || 0;
+
+        petEl.style.left = (curX + (targetX - curX) * 0.08) + 'px';
+        petEl.style.top = (curY + (targetY - curY) * 0.08) + 'px';
+      }
+    });
+  }
 
   /**
    * Handle window resize
